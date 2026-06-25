@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Enterprise Advanced RAG Platform — Self-correcting document intelligence with real-time agent evaluation logs and validated, cited answers." />
+  <title>Enterprise RAG Platform | Intelligent Document Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ─── Header ─────────────────────────────────────────────── -->
+  <header id="app-header" role="banner">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M4 14C4 8.477 8.477 4 14 4s10 4.477 10 10-4.477 10-10 10S4 19.523 4 14Z" fill="url(#grad1)" opacity="0.15"/>
+            <path d="M9 11l5-5 5 5M9 17l5 5 5-5" stroke="url(#grad1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="14" cy="14" r="2" fill="url(#grad1)"/>
+            <defs>
+              <linearGradient id="grad1" x1="4" y1="4" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6C63FF"/>
+                <stop offset="1" stop-color="#00D4FF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-title">RAG<span class="logo-accent">Platform</span></h1>
+          <p class="logo-sub">Enterprise Document Intelligence</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div class="status-dot" id="ws-status-dot" aria-label="Connection status"></div>
+        <span class="status-label" id="ws-status-label">Connecting…</span>
+        <div class="session-badge" id="session-badge">Session: —</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Main Split-Pane Layout ─────────────────────────────── -->
+  <main id="main-content" role="main">
+    <!-- ══ LEFT PANEL ══════════════════════════════════════════ -->
+    <aside id="left-panel" aria-label="Document workspace and agent logs">
+
+      <!-- Upload Zone -->
+      <section class="panel-section" id="upload-section" aria-label="Document upload">
+        <div class="section-header">
+          <span class="section-icon">📄</span>
+          <h2 class="section-title">Document Workspace</h2>
+        </div>
+
+        <div
+          id="drop-zone"
+          class="drop-zone-premium"
+          role="button"
+          tabindex="0"
+          aria-label="Drop PDF files here or click to upload"
+          ondragover="event.preventDefault()"
+          ondragenter="handleDragEnter(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)"
+          onclick="document.getElementById('file-input').click()"
+          onkeypress="if(event.key==='Enter'){document.getElementById('file-input').click()}"
+        >
+          <div class="drop-bg-glow"></div>
+          <div class="drop-zone-content">
+            <div class="drop-icon-wrapper" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+                <rect x="8" y="4" width="32" height="40" rx="4" fill="url(#docGrad)" fill-opacity="0.1"/>
+                <path d="M12 4v40M36 4v40" stroke="url(#docGrad)" stroke-width="2" stroke-opacity="0.2"/>
+                <path d="M24 14v14M16 20l8 8 8-8" stroke="url(#docGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 34h20" stroke="url(#docGrad)" stroke-width="3" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="docGrad" x1="8" y1="4" x2="40" y2="44" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#6C63FF"/>
+                    <stop offset="1" stop-color="#00D4FF"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="drop-text-group">
+              <p class="drop-title">Upload Documents</p>
+              <p class="drop-sub">Drag & drop or <span class="drop-link">browse files</span></p>
+            </div>
+            <div class="drop-formats">
+              <span class="format-pill">PDF</span>
+              <span class="format-pill">Multi-page</span>
+            </div>
+          </div>
+          <input type="file" id="file-input" accept=".pdf" multiple hidden onchange="handleFileSelect(event)" />
+        </div>
+
+        <!-- Upload Progress -->
+        <div id="upload-progress-wrap" class="upload-progress-wrap" hidden>
+          <div class="upload-progress-bar" id="upload-progress-bar"></div>
+          <span class="upload-progress-label" id="upload-progress-label">Uploading…</span>
+        </div>
+      </section>
+
+      <!-- Indexed Documents -->
+      <section class="panel-section" id="documents-section" aria-label="Indexed documents">
+        <div class="section-header">
+          <span class="section-icon">🗂️</span>
+          <h2 class="section-title">Indexed Documents</h2>
+          <button class="refresh-btn" id="refresh-docs-btn" onclick="loadDocuments()" title="Refresh documents list" aria-label="Refresh documents list">⟳</button>
+        </div>
+        <div id="documents-list" class="documents-list">
+          <p class="empty-hint">No documents indexed yet. Upload a PDF to begin.</p>
+        </div>
+      </section>
+
+      <!-- Agent Execution Log -->
+      <section class="panel-section log-section" id="log-section" aria-label="Real-time agent execution logs">
+        <div class="section-header">
+          <span class="section-icon">⚡</span>
+          <h2 class="section-title">Agent Execution Log</h2>
+          <button class="clear-btn" onclick="clearLogs()" title="Clear logs" aria-label="Clear agent logs">✕ Clear</button>
+        </div>
+
+        <!-- Pipeline Trace Bar -->
+        <div id="pipeline-trace" class="pipeline-trace" aria-label="Pipeline execution path">
+          <span class="trace-node inactive" id="trace-retrieve">Retrieve</span>
+          <span class="trace-arrow">→</span>
+          <span class="trace-node inactive" id="trace-grade">Grade</span>
+          <span class="trace-arrow">→</span>
+          <span class="trace-node inactive" id="trace-rewrite">Rewrite</span>
+          <span class="trace-arrow">→</span>
+          <span class="trace-node inactive" id="trace-web">Web Search</span>
+          <span class="trace-arrow">→</span>
+          <span class="trace-node inactive" id="trace-generate">Generate</span>
+        </div>
+
+        <div id="log-terminal" class="log-terminal" role="log" aria-live="polite" aria-label="Agent log output">
+          <div class="log-entry log-system">
+            <span class="log-time">SYSTEM</span>
+            <span class="log-msg">Enterprise RAG Platform ready. Upload a PDF and ask a question to begin.</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ══ RIGHT PANEL ═════════════════════════════════════════ -->
+    <section id="right-panel" aria-label="Conversation and answers">
+
+      <!-- Chat Container -->
+      <div id="chat-container" class="chat-container" role="log" aria-label="Conversation messages" aria-live="polite">
+        <!-- Welcome card -->
+        <div class="welcome-card" id="welcome-card">
+          <div class="welcome-icon" aria-hidden="true">
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+              <circle cx="28" cy="28" r="28" fill="url(#wg)" opacity="0.1"/>
+              <path d="M16 28l7 7 14-14" stroke="url(#wg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="wg" x1="0" y1="0" x2="56" y2="56">
+                  <stop stop-color="#6C63FF"/>
+                  <stop offset="1" stop-color="#00D4FF"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h2 class="welcome-title">Self-Correcting Document AI</h2>
+          <p class="welcome-desc">
+            Upload a corporate PDF on the left, then ask any question.<br/>
+            The CRAG pipeline will retrieve, grade, and — if needed — search the web to deliver a validated, cited answer.
+          </p>
+          <div class="welcome-features">
+            <div class="feature-chip">🔍 Semantic Retrieval</div>
+            <div class="feature-chip">⚖️ Relevance Grading</div>
+            <div class="feature-chip">🌐 Web Fallback</div>
+            <div class="feature-chip">📎 Strict Citations</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Filter -->
+      <div id="doc-filter-bar" class="doc-filter-bar">
+        <label class="filter-label">📂 Search scope:</label>
+        <div class="custom-select-wrapper">
+          <button id="doc-filter-btn" class="custom-select-btn" onclick="toggleFilterDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
+            <span id="doc-filter-text">All Documents</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div id="doc-filter-dropdown" class="custom-select-dropdown" role="listbox" hidden>
+            <!-- Checkbox options injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <div id="input-area" class="input-area">
+        <textarea
+          id="query-input"
+          class="query-input"
+          placeholder="Ask a question about your document… (Enter to send, Shift+Enter for newline)"
+          rows="1"
+          aria-label="Query input"
+          onkeydown="handleQueryKeydown(event)"
+          oninput="autoResizeTextarea(this)"
+        ></textarea>
+        <button
+          id="send-btn"
+          class="send-btn"
+          onclick="sendQuery()"
+          aria-label="Send query"
+          disabled
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M2 10l7-7m0 0l7 7M9 3v14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90 10 10)"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
