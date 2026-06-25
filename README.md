@@ -20,7 +20,7 @@ This platform eliminates "hallucinations" by cross-referencing vector data chunk
 
 | Document Workspace & Agent Log | Real-time Search & Citations |
 | :---: | :---: |
-| *(Add screenshot here)*<br>`![Workspace](docs/workspace.png)` | *(Add screenshot here)*<br>`![Citations](docs/chat.png)` |
+| <br>![Workspace](https://github.com/Dev-MrV/rag_platform/blob/main/Src/image2.png) | ![Citations](https://github.com/Dev-MrV/rag_platform/blob/main/Src/image3.png) |
 
 ---
 
