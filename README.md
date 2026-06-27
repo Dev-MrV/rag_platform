@@ -167,7 +167,6 @@ Citations
 | AI Orchestration     | LangGraph                           |
 | Vector Database      | MongoDB                             |
 | PDF Processing       | PyMuPDF                             |
-| Web Search           | DuckDuckGo                          |
 | Frontend             | HTML5, CSS3, JavaScript             |
 
 ---
